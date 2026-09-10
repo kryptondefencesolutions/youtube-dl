@@ -8,7 +8,11 @@ if $youtubedl_extract_audio; then
     audio_file="/audio/${relative_path%.*}.mp3"
     if [ ! -f "$audio_file" ]; then
       mkdir -p "$(dirname "$audio_file")"
-      ffmpeg -y -i "$video_file" -vn -acodec libmp3lame -q:a 2 "$audio_file" < /dev/null > /dev/null 2>&1
+      ffmpeg_output="$(ffmpeg -y -i "$video_file" -vn -acodec libmp3lame -q:a 2 "$audio_file" < /dev/null 2>&1)"
+      if [ $? -ne 0 ]; then
+        echo "[extract-audio] failed: $video_file"
+        echo "$ffmpeg_output" | tail -5
+      fi
     fi
   done
 fi
