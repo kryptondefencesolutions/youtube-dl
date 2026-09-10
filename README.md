@@ -106,15 +106,11 @@ Then configure the channels as explained in the [Configure youtube-dl](https://g
 | `youtubedl_extract_audio` | `true` (`false`) | Used to enable extracting the audio of every downloaded video to mp3 into `/audio`, preserving folder structure. The original video is kept.
 
 # Image Tags
-* **`unstable`**
-    * Automatically built when a new GitHub commit is pushed.
-    * Container updates to the newest yt-dlp commit while running.
 * **`latest`**
-    * Automatically built when a new version of yt-dlp is released.
-    * Container updates to the latest version of yt-dlp while running.
-* **`v<VERSION>`**
-    * Automatically built when a new version of yt-dlp is released.
-    * Does not update.
+    * Automatically built on every commit pushed to `master`.
+    * Container self-updates to the newest yt-dlp commit while running.
+* **`<branch-name>`**
+    * Automatically built on every commit pushed to any other branch, for testing changes before they merge.
 
 # Configure youtube-dl
 * **Authentication**
