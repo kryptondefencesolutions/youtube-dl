@@ -10,6 +10,9 @@ BASE_PATH = os.environ.get('youtubedl_webuipath', '')
 templates = Jinja2Templates(directory='/app/youtube-dl-webui/templates')
 webserver = FastAPI(root_path=BASE_PATH)
 youtubedl_binary = 'yt-dlp'
+youtubedl_extract_audio = os.environ.get('youtubedl_extract_audio', 'false') == 'true'
+youtubedl_move_completed = os.environ.get('youtubedl_move_completed', 'false') == 'true'
+youtubedl_exec_arg = " --exec 'bash /app/youtube-dl/on-video-complete.sh {}'" if (youtubedl_extract_audio or youtubedl_move_completed) else ''
 
 
 async def download_bg(urls: list, download_id: str, youtubedl_args_format: str = ""):
@@ -25,7 +28,7 @@ async def download_bg(urls: list, download_id: str, youtubedl_args_format: str =
             await log_file.write(f'[youtube-dl] Starting download: {url}\n')
             await log_file.flush()
             result = await asyncio.create_subprocess_shell(
-                f'{youtubedl_binary} \'{url}\' --no-playlist-reverse --playlist-end \'-1\' --config-location \'/config/args.conf\' {youtubedl_args_format}',
+                f'{youtubedl_binary} \'{url}\' --no-playlist-reverse --playlist-end \'-1\' --config-location \'/config/args.conf\' {youtubedl_args_format}{youtubedl_exec_arg}',
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE
             )
@@ -33,15 +36,6 @@ async def download_bg(urls: list, download_id: str, youtubedl_args_format: str =
                 write_output(result.stdout, log_file),
                 write_output(result.stderr, log_file)
             )
-        post_process = await asyncio.create_subprocess_shell(
-            'bash /app/youtube-dl/post-process.sh',
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
-        await asyncio.gather(
-            write_output(post_process.stdout, log_file),
-            write_output(post_process.stderr, log_file)
-        )
         await log_file.write('[youtube-dl] Download process ended\n')
     except Exception as e:
         await log_file.write(f"Error: {str(e)}\n")
