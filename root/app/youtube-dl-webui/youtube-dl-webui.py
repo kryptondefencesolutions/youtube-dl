@@ -1,4 +1,4 @@
-import aiofiles, asyncio, re, uuid, os
+import aiofiles, asyncio, re, uuid, os, signal
 from fastapi import FastAPI, Request, Form, BackgroundTasks
 from fastapi.responses import RedirectResponse, FileResponse, PlainTextResponse
 from fastapi.templating import Jinja2Templates
@@ -14,6 +14,9 @@ youtubedl_extract_audio = os.environ.get('youtubedl_extract_audio', 'false') == 
 youtubedl_move_completed = os.environ.get('youtubedl_move_completed', 'false') == 'true'
 youtubedl_exec_arg = " --exec 'bash /app/youtube-dl/on-video-complete.sh {}'" if (youtubedl_extract_audio or youtubedl_move_completed) else ''
 
+running_processes = {}
+stop_requested = set()
+
 
 async def download_bg(urls: list, download_id: str, youtubedl_args_format: str = ""):
     log_file_path = f'/tmp/download_{download_id}.log'
@@ -25,22 +28,32 @@ async def download_bg(urls: list, download_id: str, youtubedl_args_format: str =
                 await log_file.write(decoded_line)
                 await log_file.flush()
         for url in urls:
+            if download_id in stop_requested:
+                break
             await log_file.write(f'[youtube-dl] Starting download: {url}\n')
             await log_file.flush()
             result = await asyncio.create_subprocess_shell(
                 f'{youtubedl_binary} \'{url}\' --no-playlist-reverse --playlist-end \'-1\' --config-location \'/config/args.conf\' {youtubedl_args_format}{youtubedl_exec_arg}',
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=asyncio.subprocess.PIPE,
+                start_new_session=True
             )
+            running_processes[download_id] = result
             await asyncio.gather(
                 write_output(result.stdout, log_file),
                 write_output(result.stderr, log_file)
             )
-        await log_file.write('[youtube-dl] Download process ended\n')
+            running_processes.pop(download_id, None)
+        if download_id in stop_requested:
+            await log_file.write('[youtube-dl] Download stopped by user\n')
+        else:
+            await log_file.write('[youtube-dl] Download process ended\n')
     except Exception as e:
         await log_file.write(f"Error: {str(e)}\n")
         await log_file.flush()
     finally:
+        running_processes.pop(download_id, None)
+        stop_requested.discard(download_id)
         await log_file.close()
 
 
@@ -85,6 +98,18 @@ async def download_url(request: Request, background_tasks: BackgroundTasks, urls
 @webserver.get('/download/{download_id}')
 async def download_status(request: Request, download_id: str):
     return templates.TemplateResponse(request, 'dashboard.html', {'download_id': download_id, 'base_path': BASE_PATH})
+
+
+@webserver.post('/download/{download_id}/stop')
+async def stop_download(download_id: str):
+    stop_requested.add(download_id)
+    process = running_processes.get(download_id)
+    if process:
+        try:
+            os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+    return RedirectResponse(url=f'{BASE_PATH}/download/{download_id}', status_code=303)
 
 
 @webserver.get('/log/youtube-dl')

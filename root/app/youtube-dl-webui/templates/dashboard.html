@@ -28,7 +28,11 @@
 
     {% if download_id %}
     <div class="ui segment">
-        <h3>Download log:</h3>
+        <h3>Download log:
+            <form method="post" action="{{ base_path }}/download/{{ download_id }}/stop" style="display:inline;">
+                <button class="ui red tiny button" type="submit">Stop</button>
+            </form>
+        </h3>
         <pre class="logs" id="text"></pre>
     </div>
 
