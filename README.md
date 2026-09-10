@@ -1,13 +1,11 @@
-# Jeeaaasus - youtube-dl
-[![GitHub last commit](https://img.shields.io/github/last-commit/jeeaaasus/youtube-dl?logo=github)](https://github.com/Jeeaaasus/youtube-dl/actions/workflows/push-unstable-image.yml/)
-[![GitHub Automated build](https://img.shields.io/github/actions/workflow/status/jeeaaasus/youtube-dl/push-release-version-image.yml?logo=github)](https://github.com/Jeeaaasus/youtube-dl/actions/workflows/push-release-version-image.yml/)
-[![Image Size](https://img.shields.io/docker/image-size/jeeaaasustest/youtube-dl/latest?style=flat&logo=docker)](https://hub.docker.com/r/jeeaaasustest/youtube-dl/)
-[![Docker Pulls](https://img.shields.io/docker/pulls/jeeaaasustest/youtube-dl?style=flat&logo=docker)](https://hub.docker.com/r/jeeaaasustest/youtube-dl/)
-[![Docker Stars](https://img.shields.io/docker/stars/jeeaaasustest/youtube-dl?style=flat&logo=docker)](https://hub.docker.com/r/jeeaaasustest/youtube-dl/)
+# youtube-dl
+[![GitHub last commit](https://img.shields.io/github/last-commit/kryptondefencesolutions/youtube-dl?logo=github)](https://github.com/kryptondefencesolutions/youtube-dl/actions/workflows/push-image.yml/)
+[![Image Size](https://img.shields.io/docker/image-size/paulsmithcruk/youtube-dl/latest?style=flat&logo=docker)](https://hub.docker.com/r/paulsmithcruk/youtube-dl/)
+[![Docker Pulls](https://img.shields.io/docker/pulls/paulsmithcruk/youtube-dl?style=flat&logo=docker)](https://hub.docker.com/r/paulsmithcruk/youtube-dl/)
 
 **Automated yt-dlp Docker image for downloading YouTube subscriptions**
 
-Docker hub page [here](https://hub.docker.com/r/jeeaaasustest/youtube-dl).  
+Docker hub page [here](https://hub.docker.com/r/paulsmithcruk/youtube-dl).  
 yt-dlp documentation [here](https://github.com/yt-dlp/yt-dlp).
 
 # Features
@@ -53,9 +51,9 @@ docker run -d \
     -e youtubedl_quality=2160 \
     -e youtubedl_webui=true \
     -p 8080:8080 \
-    jeeaaasustest/youtube-dl
+    paulsmithcruk/youtube-dl
 ```
-Then add your cookies as explained in the [Configure youtube-dl](https://github.com/Jeeaaasus/youtube-dl#configure-youtube-dl) section below.
+Then add your cookies as explained in the [Configure youtube-dl](#configure-youtube-dl) section below.
 
 <br>
 
@@ -65,9 +63,9 @@ docker run -d \
     --name youtube-dl \
     -v youtube-dl_data:/config \
     -v <PATH>:/downloads \
-    jeeaaasustest/youtube-dl
+    paulsmithcruk/youtube-dl
 ```
-Then configure the channels as explained in the [Configure youtube-dl](https://github.com/Jeeaaasus/youtube-dl#configure-youtube-dl) section below.
+Then configure the channels as explained in the [Configure youtube-dl](#configure-youtube-dl) section below.
 
 **Explanation**
 * `-v youtube-dl_data:/config`  
@@ -172,7 +170,7 @@ Then configure the channels as explained in the [Configure youtube-dl](https://g
 
 * **args.conf**
 
-    File location: `/config/args.conf`.&nbsp;&nbsp;&nbsp;*delete and restart container to restore [default arguments](https://github.com/Jeeaaasus/youtube-dl/blob/master/root/config.default/args.conf)*  
+    File location: `/config/args.conf`.&nbsp;&nbsp;&nbsp;*delete and restart container to restore [default arguments](https://github.com/kryptondefencesolutions/youtube-dl/blob/master/root/config.default/args.conf)*  
     This is where all youtube-dl execution arguments are, you can add or remove them however you like. If unmodified this file is automatically updated.
 
     **Unsupported arguments**
