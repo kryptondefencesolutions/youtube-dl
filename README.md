@@ -78,6 +78,12 @@ Then configure the channels as explained in the [Configure youtube-dl](https://g
   This is where on your Docker host you want youtube-dl to download videos.  
   Replace `<PATH>`, example: `-v /media/youtube-dl:/downloads`
 
+* `-v <PATH>:/completed` *(optional, only used if `youtubedl_move_completed=true`)*  
+  This makes a bind mount where finished downloads are moved to once a download cycle completes, keeping `/downloads` as a working/staging area.
+
+* `-v <PATH>:/audio` *(optional, only used if `youtubedl_extract_audio=true`)*  
+  This makes a bind mount where extracted mp3 audio is saved, mirroring the folder structure of `/downloads`. The original video files are not removed.
+
 # Env Parameters
 `-e <Parameter>=<Value>`
 
@@ -96,6 +102,8 @@ Then configure the channels as explained in the [Configure youtube-dl](https://g
 | `youtubedl_watchlater` | `true` (`false`) | If you want to download your Watch Later playlist. Authentication is required.
 | `youtubedl_interval` | `1h` (`3h`) `12h` `3d` `false` | If you want to change the default download interval.<br>This can be any value compatible with [gnu sleep](https://github.com/tldr-pages/tldr/blob/main/pages/linux/sleep.md) or if set to false, the container will shutoff after executing. A low interval value risks you being ip-banned by YouTube.<br>1 hour, (3 hours), 12 hours, 3 days, false.
 | `youtubedl_quality` | `720` (`1080`) `1440` `2160` | If you want to change the default download resolution.<br>720p, (1080p), 1440p, 4k.
+| `youtubedl_move_completed` | `true` (`false`) | Used to enable moving finished downloads out of `/downloads` into `/completed` at the end of every download cycle, preserving folder structure.
+| `youtubedl_extract_audio` | `true` (`false`) | Used to enable extracting the audio of every downloaded video to mp3 into `/audio`, preserving folder structure. The original video is kept.
 
 # Image Tags
 * **`unstable`**

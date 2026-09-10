@@ -12,6 +12,8 @@ ENV PATH="/home/abc/.venv/bin:$PATH" \
     youtubedl_watchlater="false" \
     youtubedl_interval="3h" \
     youtubedl_quality="1080" \
+    youtubedl_move_completed="false" \
+    youtubedl_extract_audio="false" \
     OPENSSL_CONF=
 
 RUN set -x && \
@@ -74,7 +76,7 @@ RUN set -x && \
 RUN set -x && \
     /home/abc/.venv/bin/pip --no-cache-dir install yt-dlp[default]
 
-VOLUME /config /downloads
+VOLUME /config /downloads /completed /audio
 
 WORKDIR /config
 

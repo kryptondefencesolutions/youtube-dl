@@ -9,7 +9,7 @@ on:
       - 'release-versions/latest.txt'
 
 env:
-  IMAGE_REPO: jeeaaasustest
+  IMAGE_REPO: paulsmithcruk
   IMAGE_NAME: youtube-dl
 
 jobs:
