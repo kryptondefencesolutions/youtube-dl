@@ -21,7 +21,7 @@
   <DonateText/>
   <DonateLink/>
   <Requires/>
-  <Config Name="WebUI Port" Target="8080" Default="8080" Mode="tcp" Description="Port the webui is served on (requires youtubedl_webui=true below)" Type="Port" Display="always" Required="false" Mask="false">8080</Config>
+  <Config Name="WebUI Port" Target="8080" Default="18095" Mode="tcp" Description="Host port the webui is served on (requires youtubedl_webui=true below). 8080 is commonly taken by other containers (e.g. sabnzbd) - check for conflicts before applying." Type="Port" Display="always" Required="false" Mask="false">18095</Config>
   <Config Name="Downloads" Target="/downloads" Default="/mnt/user/downloads/YouTube/Videos/" Mode="rw" Description="Where videos are downloaded to" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/downloads/YouTube/Videos/</Config>
   <Config Name="Config" Target="/config" Default="/mnt/user/appdata/youtube-dl" Mode="rw" Description="Persistent config storage: args.conf, channels.txt, cookies.txt, archive.txt" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/youtube-dl</Config>
   <Config Name="Completed" Target="/completed" Default="/mnt/user/downloads/YouTube/Completed/" Mode="rw" Description="Finished downloads are moved here when youtubedl_move_completed is enabled" Type="Path" Display="advanced" Required="false" Mask="false">/mnt/user/downloads/YouTube/Completed/</Config>
