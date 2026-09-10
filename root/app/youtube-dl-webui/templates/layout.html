@@ -19,8 +19,8 @@
             </div>
         </div>
         <form class="item" method="post" action="{{ base_path }}/download"  style="flex-grow:1;">
-            <div class="ui action input">
-                <input type="text" name="url" placeholder="URL">
+            <div class="ui action input" style="width:100%;">
+                <textarea name="urls" rows="1" placeholder="One or more URLs, one per line" style="resize:vertical; min-height:2.5em;"></textarea>
                 <button class="ui teal right labeled icon button">
                     <i class="download icon"></i>
                     Download

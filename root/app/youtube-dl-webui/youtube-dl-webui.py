@@ -12,30 +12,33 @@ webserver = FastAPI(root_path=BASE_PATH)
 youtubedl_binary = 'yt-dlp'
 
 
-async def download_bg(url: str, download_id: str, youtubedl_args_format: str = ""):
+async def download_bg(urls: list, download_id: str, youtubedl_args_format: str = ""):
+    log_file_path = f'/tmp/download_{download_id}.log'
+    log_file = await aiofiles.open(log_file_path, 'w')
     try:
-        log_file_path = f'/tmp/download_{download_id}.log'
-        log_file = await aiofiles.open(log_file_path, 'w')
-        result = await asyncio.create_subprocess_shell(
-            f'{youtubedl_binary} \'{url}\' --no-playlist-reverse --playlist-end \'-1\' --config-location \'/config/args.conf\' {youtubedl_args_format}',
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
         async def write_output(stream, log_file):
             async for line in stream:
                 decoded_line = line.decode()
                 await log_file.write(decoded_line)
                 await log_file.flush()
-        await asyncio.gather(
-            write_output(result.stdout, log_file),
-            write_output(result.stderr, log_file)
-        )
-        await log_file.write('[youtube-dl] Download process ended\n')
-        await log_file.close()
-    except Exception as e:
-        async with aiofiles.open(log_file_path, 'a') as log_file:
-            await log_file.write(f"Error: {str(e)}\n")
+        for url in urls:
+            await log_file.write(f'[youtube-dl] Starting download: {url}\n')
             await log_file.flush()
+            result = await asyncio.create_subprocess_shell(
+                f'{youtubedl_binary} \'{url}\' --no-playlist-reverse --playlist-end \'-1\' --config-location \'/config/args.conf\' {youtubedl_args_format}',
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            await asyncio.gather(
+                write_output(result.stdout, log_file),
+                write_output(result.stderr, log_file)
+            )
+        await log_file.write('[youtube-dl] Download process ended\n')
+    except Exception as e:
+        await log_file.write(f"Error: {str(e)}\n")
+        await log_file.flush()
+    finally:
+        await log_file.close()
 
 
 def get_archive(archive_file='/config/archive.txt'):
@@ -62,15 +65,16 @@ async def dashboard(request: Request):
 
 
 @webserver.post('/download')
-async def download_url(request: Request, background_tasks: BackgroundTasks, url: str = Form(...)):
-    if url:
+async def download_url(request: Request, background_tasks: BackgroundTasks, urls: str = Form(...)):
+    url_list = [line.strip() for line in urls.replace('\r\n', '\n').split('\n') if line.strip()]
+    if url_list:
         download_id = str(uuid.uuid4())
         async with aiofiles.open('/config/args.conf') as f:
             if re.search(r'(--format |-f )', await f.read(), flags=re.I | re.MULTILINE) is not None:
                 youtubedl_args_format = ''
             else:
                 youtubedl_args_format = youtubedl_default_args_format
-        background_tasks.add_task(download_bg, url, download_id, youtubedl_args_format)
+        background_tasks.add_task(download_bg, url_list, download_id, youtubedl_args_format)
         return RedirectResponse(url=f'{BASE_PATH}/download/{download_id}', status_code=303)
     return RedirectResponse(url=f'{BASE_PATH}/', status_code=303)
 
