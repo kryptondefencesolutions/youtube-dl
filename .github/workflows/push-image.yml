@@ -27,11 +27,6 @@ jobs:
       - name: Get environment variables
         uses: FranzDiebold/github-env-vars-action@v2
 
-      - name: Set version
-        run: |
-          RELEASE_VERSION=$(cat release-versions/latest.txt)
-          sed -i -E 's!(pip install yt-dlp\[default\])!\1=='"$RELEASE_VERSION"'!i' Dockerfile
-
       - name: Set tag
         run: |
           if [ "$CI_ACTION_REF_NAME_SLUG" == 'master' ]
