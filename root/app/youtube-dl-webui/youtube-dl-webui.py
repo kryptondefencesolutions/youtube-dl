@@ -33,6 +33,15 @@ async def download_bg(urls: list, download_id: str, youtubedl_args_format: str =
                 write_output(result.stdout, log_file),
                 write_output(result.stderr, log_file)
             )
+        post_process = await asyncio.create_subprocess_shell(
+            'bash /app/youtube-dl/post-process.sh',
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        await asyncio.gather(
+            write_output(post_process.stdout, log_file),
+            write_output(post_process.stderr, log_file)
+        )
         await log_file.write('[youtube-dl] Download process ended\n')
     except Exception as e:
         await log_file.write(f"Error: {str(e)}\n")
